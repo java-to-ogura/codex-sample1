@@ -6,6 +6,8 @@ This project is a simple Spring Boot application with two endpoints:
 
 ## Running with Docker
 
+The Dockerfile uses the Gradle wrapper to build and test the project.
+
 To build the Docker image:
 
 ```bash
