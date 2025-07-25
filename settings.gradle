@@ -4,3 +4,5 @@ pluginManagement {
         mavenCentral()
     }
 }
+
+rootProject.name = 'codex-sample1' // プロジェクト名は必要に応じて
