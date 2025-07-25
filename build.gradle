@@ -1,4 +1,4 @@
-buildscript {
+pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
@@ -17,6 +17,7 @@ sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
