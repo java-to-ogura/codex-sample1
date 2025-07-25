@@ -1,17 +1,17 @@
 FROM gradle:8-jdk17 AS build
-
 WORKDIR /home/gradle/src
 
-# プラグインと依存解決のため、gradleファイルを先にコピー
-COPY settings.gradle build.gradle ./
+# Gradle設定ファイルを先にコピー
+COPY settings.gradle .
+COPY build.gradle .
 
-# ここで一度プラグイン解決（失敗しても無視してOK）
+# pluginの依存解決のみ先に実行（pluginManagementの解決）
 RUN gradle --no-daemon help || true
 
-# 残りのソースをコピー
+# 残りの全ファイルをコピー
 COPY . .
 
-# JARをビルド
+# JARのビルド
 RUN gradle bootJar --no-daemon
 
 # 実行用イメージ
