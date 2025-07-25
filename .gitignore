@@ -1,4 +1,6 @@
 /build/
 /.gradle/
 .gradle/
-#gradle/wrapper/gradle-wrapper.jar
+/bin/
+# keep the Gradle wrapper jar
+!gradle/wrapper/gradle-wrapper.jar
