@@ -10,7 +10,6 @@ sourceCompatibility = '17'
 
 repositories {
     mavenCentral()
-    gradlePluginPortal() // plugins の解決のために追加
 }
 
 dependencies {

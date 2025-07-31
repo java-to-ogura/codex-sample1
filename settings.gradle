@@ -5,4 +5,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'codex-sample1' // プロジェクト名は必要に応じて
+rootProject.name = 'codex-sample1'

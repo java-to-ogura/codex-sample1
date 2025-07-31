@@ -1,29 +1,26 @@
+# ---- Build Stage ----
 FROM gradle:8-jdk17 AS build
 
-# Gradleキャッシュの場所を一時ディレクトリに変更（パーミッション回避）
-ENV GRADLE_USER_HOME=/tmp/.gradle
+# 必要なツールと証明書の取得・登録
+RUN apt-get update && apt-get install -y wget openssl ca-certificates && \
+    echo | openssl s_client -showcerts -connect repo.maven.apache.org:443 -servername repo.maven.apache.org 2>/dev/null \
+    | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /usr/local/share/ca-certificates/mavenrepo.crt && \
+    update-ca-certificates && \
+    keytool -import -noprompt -trustcacerts -alias mavenrepo \
+        -keystore "$JAVA_HOME/lib/security/cacerts" \
+        -storepass changeit -file /usr/local/share/ca-certificates/mavenrepo.crt
 
 WORKDIR /home/gradle/src
+COPY settings.gradle ./
+COPY build.gradle ./
 
-# SSL証明書エラー回避（証明書更新）
-USER root
-RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-USER gradle
-
-# Gradle設定ファイルを先にコピー
-COPY settings.gradle .
-COPY build.gradle .
-
-# Pluginリゾルブ
+# Gradleの依存を早めに解決してキャッシュ活用
 RUN gradle --no-daemon help || true
 
-# 残りのファイル（.gradle除外されている前提）
-COPY . .
-
-# JARのビルド
+COPY . ./
 RUN gradle bootJar --no-daemon
 
-# 実行用ステージ
+# ---- Runtime Stage ----
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /home/gradle/src/build/libs/*.jar app.jar
