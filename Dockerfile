@@ -1,27 +1,29 @@
 FROM gradle:8-jdk17 AS build
+
+# Gradleキャッシュの場所を一時ディレクトリに変更（パーミッション回避）
+ENV GRADLE_USER_HOME=/tmp/.gradle
+
 WORKDIR /home/gradle/src
 
-# 必要なパッケージをインストール（SSL証明書の問題対策）
+# SSL証明書エラー回避（証明書更新）
 USER root
 RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-
-# gradleユーザーに権限を戻す
 USER gradle
 
 # Gradle設定ファイルを先にコピー
 COPY settings.gradle .
 COPY build.gradle .
 
-# pluginの依存解決のみ先に実行
+# Pluginリゾルブ
 RUN gradle --no-daemon help || true
 
-# 残りの全ファイルをコピー
+# 残りのファイル（.gradle除外されている前提）
 COPY . .
 
 # JARのビルド
 RUN gradle bootJar --no-daemon
 
-# 実行用イメージ
+# 実行用ステージ
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /home/gradle/src/build/libs/*.jar app.jar
